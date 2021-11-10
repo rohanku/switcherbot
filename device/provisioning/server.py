@@ -1,10 +1,15 @@
 from flask import Flask, request
 import os
+import hashlib, binascii
 
 app = Flask(__name__)
 
 def str_hex(s):
-    return "".join([format(ord(c), "x") for c in s])
+    return "".join(['{:02x}'.format(ord(c)) for c in s])
+
+def wpa_psk(ssid, password):
+    dk = hashlib.pbkdf2_hmac('sha1', str.encode(password), str.encode(ssid), 4096, 32)
+    return binascii.hexlify(dk)
 
 def overwrite(path, contents):
     f = open(path, "w")
@@ -19,8 +24,9 @@ def set_config(dhcpcd_conf_new, wpa_supplicant_new):
 def provision():
     ssid = request.args.get('ssid')
     psk = request.args.get('psk')
+    dk = wpa_psk(ssid, psk)
     dhcpcd_conf_new = open("/home/pi/switcherbot/device/provisioning/templates/provisioned/dhcpcd.conf").read()
-    wpa_supplicant_new = open("/home/pi/switcherbot/device/provisioning/templates/provisioned/wpa_supplicant.conf").read() % (str_hex(ssid), str_hex(psk))
+    wpa_supplicant_new = open("/home/pi/switcherbot/device/provisioning/templates/provisioned/wpa_supplicant.conf").read() % (str_hex(ssid), dk.decode('utf-8'))
     set_config(dhcpcd_conf_new, wpa_supplicant_new)
     os.system("sudo systemctl disable hostapd && sudo systemctl mask hostapd")
     return "Finished provisioning customer!"
