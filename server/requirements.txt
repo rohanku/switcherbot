@@ -1,0 +1,12 @@
+flask
+python-dotenv
+requests
+authlib
+six
+python-decouple
+psycopg2-binary
+flask-sqlalchemy
+flask_script
+flask_migrate
+google-cloud-iot
+google-cloud-pubsub
