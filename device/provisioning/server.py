@@ -44,4 +44,9 @@ def reset():
     os.system("sudo systemctl unmask hostapd && sudo systemctl enable hostapd")
     return "Finished resetting device!"
 
+@app.route("/config")
+def provision():
+    config = open("/home/pi/switcherbot/device/mqtt/device_config.json").read()
+    return config
+
 app.run(host='0.0.0.0', port=5000)
