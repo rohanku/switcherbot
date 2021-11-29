@@ -45,7 +45,7 @@ def reset():
     return "Finished resetting device!"
 
 @app.route("/config")
-def provision():
+def config():
     config = open("/home/pi/switcherbot/device/mqtt/device_config.json").read()
     return config
 
