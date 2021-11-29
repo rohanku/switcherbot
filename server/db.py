@@ -25,6 +25,6 @@ def create_registry(conn, user_id, registry_name):
 
 def get_registries(conn, user_id):
     with conn.cursor() as cur:
-        cur.execute('SELECT registries.id, registries.name, permissions.admin FROM permissions INNER JOIN registries on permissions.registry_id = registries.id WHERE permissions.user_id = %(user_id)s', {'user_id': user_id})
+        cur.execute('SELECT registries.id, registries.name, permissions.admin FROM permissions INNER JOIN registries on permissions.registry_id = registries.id WHERE permissions.user_id = %s', (user_id,))
         return cur.fetchall()
 
