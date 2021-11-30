@@ -28,3 +28,28 @@ def get_registries(conn, user_id):
         cur.execute('SELECT registries.id, registries.name, permissions.admin FROM permissions INNER JOIN registries on permissions.registry_id = registries.id WHERE permissions.user_id = %s', (user_id,))
         return cur.fetchall()
 
+def get_devices(conn, registry_id):
+    with conn.cursor() as cur:
+        cur.execute('SELECT id FROM devices WHERE registry_id = %s', (registry_id,))
+        return cur.fetchall()
+
+def is_admin(conn, user_id, registry_id):
+    with conn.cursor() as cur:
+        cur.execute('SELECT permissions.admin FROM permissions INNER JOIN registries on permissions.registry_id = registries.id WHERE permissions.user_id = %s AND registries.id = %s', (user_id, registry_id))
+        perms = cur.fetchall()
+        return len(perms) > 0 and perms[0][0]
+
+def has_access(conn, user_id, registry_id):
+    with conn.cursor() as cur:
+        cur.execute('SELECT COUNT(*) FROM permissions INNER JOIN registries on permissions.registry_id = registries.id WHERE permissions.user_id = %s AND registries.id = %s;', (user_id, registry_id))
+        return cur.fetchone()[0] > 0
+
+def get_device_info(conn, device_id):
+    with conn.cursor() as cur:
+        cur.execute('SELECT id, registry_id FROM devices WHERE id = %s', (device_id,))
+        return cur.fetchone()
+
+def update_device_info(conn, device_id, registry_id):
+    with conn.cursor() as cur:
+        cur.execute('UPDATE devices SET registry_id = %s WHERE id = %s', (registry_id, device_id))
+

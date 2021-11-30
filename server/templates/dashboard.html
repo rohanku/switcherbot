@@ -1,20 +1,36 @@
 <div class="logged-in-box auth0-box logged-in">
   <h1 id="logo"><img src="//cdn.auth0.com/samples/auth0_logo_final_blue_RGB.png" /></h1>
- 
-  <form action="http://localhost:5000/api/create_registry" method = "post">
-    <p>Enter Registry Name:</p>
-    <p><input type="text" name="name"/></p>
-    <p><input type="submit" value="create" /></p>
-  </form>   
+
+  <h2>Welcome {{userinfo['name']}}</h2>
   <a class="btn btn-primary btn-lg btn-logout btn-block" href="/logout">Logout</a>
 
   {% for message in get_flashed_messages() %}
     <p>{{ message }}</p>
   {% endfor %}
 
-  <h2>Welcome {{userinfo['name']}}</h2>
+ 
+  <form action="http://localhost:5000/api/create_registry" method="post">
+    <p>Enter Registry Name:</p>
+    <p><input type="text" name="name"/></p>
+    <p><input type="submit" value="create" /></p>
+  </form>   
 
   {% for entry in registries %}
-  <pre> {{entry}} </pre>
+  <h3> {{entry[1]}} — {% if entry[2] %} Admin {% endif %} </h3>
+  <form action="http://localhost:5000/api/add_device" method="post">
+    <p>Enter Device ID:</p>
+    <p><input type="hidden" name="registry_id" value="{{entry[0]}}"/></p>
+    <p><input type="text" name="id"/></p>
+    <p><input type="submit" value="add" /></p>
+  </form>   
+
+  {% for device in devices[entry[0]] %}
+  <form action="http://localhost:5000/api/toggle_device" method="post">
+    {{device[0]}}
+    <input type="hidden" name="registry_id" value="{{entry[0]}}"/>
+    <input type="hidden" name="device_id" value="{{device[0]}}"/>
+    <input type="submit" value="toggle"/></form>
+  {% endfor %}
+
   {% endfor %}
 </div>

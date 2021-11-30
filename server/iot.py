@@ -10,30 +10,44 @@ from errors import RegistryExistsException
 
 project_id = 'switcherbot'
 cloud_region = 'us-central1'
+registry_id = 'registry'
 
-def create_registry(registry_id):
-    client = iot_v1.DeviceManagerClient()
-    pubsub_topic = f'{registry_id}-device-events'
-    parent = f"projects/{project_id}/locations/{cloud_region}"
-    topic = "projects/{}/topics/{}".format(project_id, pubsub_topic)
+client = iot_v1.DeviceManagerClient()
 
-    body = {
-        "event_notification_configs": [{"pubsub_topic_name": topic}],
-        "id": registry_id,
-    }
+def toggle_device(device_id):
+    device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
 
-    try:
-        response = client.create_device_registry(
-            request={"parent": parent, "device_registry": body}
-        )
-        print("Created registry")
-        return response
-    except HttpError:
-        print("Error, registry not created")
-        raise
-    except AlreadyExists:
-        print("Error, registry already exists")
-        raise RegistryExistsException
-    except Exception as error:
-        print(error)
-        raise
+    # command = 'Hello IoT Core!'
+    data = 'toggle'.encode("utf-8")
+
+    return client.send_command_to_device(
+	request={"name": device_path, "binary_data": data}
+    )
+
+def get_device_info(device_id):
+    device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
+
+    # See full list of device fields: https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries.devices
+    # Warning! Use snake_case field names.
+    field_mask = gp_field_mask.FieldMask(
+	paths=[
+	    "id",
+	    "name",
+	    "num_id",
+	    "credentials",
+	    "last_heartbeat_time",
+	    "last_event_time",
+	    "last_state_time",
+	    "last_config_ack_time",
+	    "last_config_send_time",
+	    "blocked",
+	    "last_error_time",
+	    "last_error_status",
+	    "config",
+	    "state",
+	    "log_level",
+	    "metadata",
+	    "gateway_config",
+	]
+    )
+    return client.get_device(request={"name": device_path, "field_mask": field_mask})

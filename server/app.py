@@ -12,7 +12,7 @@ from authlib.integrations.flask_client import OAuth
 from six.moves.urllib.parse import urlencode
 
 from flask_migrate import Migrate
-from errors import RegistryExistsException
+from errors import HandledException, RegistryExistsException
 import db
 import iot
 
@@ -44,14 +44,61 @@ def requires_auth(f):
   return decorated
 
 @app.route('/api/create_registry', methods=['POST'])
+@requires_auth
 def create_registry():
     try:
         registry_id = db.execute(db.create_registry, session['profile']['user_id'], request.form['name'])
-        iot.create_registry(f'rg{registry_id}')
     except RegistryExistsException:
         flash("Registry already exists!")
-    except:
+    except Exception as error:
         flash("An unknown error occured! Please contact a me at rohankumar@berkeley.edu to resolve the issue.")
+        print(error)
+    finally:
+        return redirect(url_for('dashboard'))
+
+@app.route('/api/add_device', methods=['POST'])
+@requires_auth
+def add_device():
+    try:
+        print(request.form)
+        admin = db.execute(db.is_admin, session['profile']['user_id'], request.form['registry_id'])
+        if not admin:
+            flash("You do not have permissions to add a device to that registry!")
+            raise HandledException
+        device_info = db.execute(db.get_device_info, request.form['id'])
+        if not device_info:
+            flash("That device does not exist!")
+            raise HandledException
+        if device_info[1]:
+            flash("That device has already been registered!")
+            raise HandledException
+        db.execute(db.update_device_info, request.form['id'], request.form['registry_id'])
+    except HandledException:
+        pass
+    except Exception as error:
+        flash("An unknown error occured! Please contact a me at rohankumar@berkeley.edu to resolve the issue.")
+        print(error)
+    finally:
+        return redirect(url_for('dashboard'))
+
+@app.route('/api/toggle_device', methods=['POST'])
+@requires_auth
+def toggle_device():
+    try:
+        has_access = db.execute(db.has_access, session['profile']['user_id'], request.form['registry_id'])
+        if not has_access:
+            flash("You do not have permissions to toggle that device!")
+            raise HandledException
+        device_info = db.execute(db.get_device_info, request.form['device_id'])
+        if request.form['registry_id'] != str(device_info[1]):
+            flash("You do not have permissions to toggle that device!")
+            raise HandledException
+        iot.toggle_device(str(device_info[0]))
+    except HandledException:
+        pass
+    except Exception as error:
+        flash("An unknown error occured! Please contact a me at rohankumar@berkeley.edu to resolve the issue.")
+        print(error)
     finally:
         return redirect(url_for('dashboard'))
 
@@ -87,10 +134,14 @@ def login():
 @requires_auth
 def dashboard():
     registries = db.execute(db.get_registries, session['profile']['user_id'])
+    devices = {}
+    for registry in registries:
+        devices[registry[0]] = db.execute(db.get_devices, registry[0])
     return render_template('dashboard.html',
                            userinfo=session['profile'],
                            userinfo_pretty=json.dumps(session['jwt_payload'], indent=4),
-                           registries=registries)
+                           registries=registries,
+                           devices=devices)
 
 @app.route('/logout')
 def logout():

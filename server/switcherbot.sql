@@ -11,6 +11,5 @@ CREATE TABLE IF NOT EXISTS registries (
 
 CREATE TABLE IF NOT EXISTS devices (
   id text NOT NULL PRIMARY KEY,
-  cert bytea NOT NULL,
   registry_id integer
 );
