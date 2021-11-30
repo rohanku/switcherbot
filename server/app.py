@@ -12,6 +12,7 @@ from authlib.integrations.flask_client import OAuth
 from six.moves.urllib.parse import urlencode
 
 from flask_migrate import Migrate
+from google.api_core.exceptions import FailedPrecondition
 from errors import HandledException, RegistryExistsException
 import db
 import iot
@@ -51,7 +52,7 @@ def create_registry():
     except RegistryExistsException:
         flash("Registry already exists!")
     except Exception as error:
-        flash("An unknown error occured! Please contact a me at rohankumar@berkeley.edu to resolve the issue.")
+        flash("An unknown error occured! Please contact me at rohankumar@berkeley.edu to resolve the issue.")
         print(error)
     finally:
         return redirect(url_for('dashboard'))
@@ -76,7 +77,7 @@ def add_device():
     except HandledException:
         pass
     except Exception as error:
-        flash("An unknown error occured! Please contact a me at rohankumar@berkeley.edu to resolve the issue.")
+        flash("An unknown error occured! Please contact me at rohankumar@berkeley.edu to resolve the issue.")
         print(error)
     finally:
         return redirect(url_for('dashboard'))
@@ -96,9 +97,11 @@ def toggle_device():
         iot.toggle_device(str(device_info[0]))
     except HandledException:
         pass
+    except FailedPrecondition:
+        flash("That device is not connected!")
     except Exception as error:
-        flash("An unknown error occured! Please contact a me at rohankumar@berkeley.edu to resolve the issue.")
-        print(error)
+        flash("An unknown error occured! Please contact me at rohankumar@berkeley.edu to resolve the issue.")
+        print(error, type(error).__name__)
     finally:
         return redirect(url_for('dashboard'))
 
