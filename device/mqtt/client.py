@@ -9,12 +9,12 @@ import RPi.GPIO as GPIO
 project_id='switcherbot'
 cloud_region='us-central1'
 registry_id='registry'
-private_key_file='secret/rsa_private.pem'
+private_key_file='/home/pi/switcherbot/device/mqtt/secret/rsa_private.pem'
 algorithm='RS256'
-ca_certs='roots.pem'
+ca_certs='/home/pi/switcherbot/device/mqtt/roots.pem'
 mqtt_bridge_hostname='mqtt.googleapis.com'
 mqtt_bridge_port=8883
-device_config = json.load(open('device_config.json'))
+device_config = json.load(open('/home/pi/switcherbot/device/mqtt/device_config.json'))
 device_id = device_config['device_id']
 
 
@@ -26,8 +26,18 @@ led_gpio_pin = 12
 led_on = False
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(led_gpio_port, GPIO.OUT)
-GPIO.output(led_gpio_port, GPIO.LOW)
+GPIO.setup(led_gpio_pin, GPIO.OUT)
+GPIO.output(led_gpio_pin, GPIO.LOW)
+
+def wait_for_connection(client):
+    while True:
+        try:
+            client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
+            return
+        except KeyboardInterrupt:
+            raise KeyboardInterrupt
+        except:
+            time.sleep(1)
 
 def create_jwt(project_id, private_key_file, algorithm):
     """Creates a JWT (https://jwt.io) to establish an MQTT connection.
@@ -98,16 +108,19 @@ def on_publish(unused_client, unused_userdata, unused_mid):
 
 def on_message(unused_client, unused_userdata, message):
     """Callback when the device receives a message on a subscription."""
+    global led_on
     payload = str(message.payload.decode("utf-8"))
     print(
         "Received message '{}' on topic '{}' with Qos {}".format(
             payload, message.topic, str(message.qos)
         )
     )
-    if message == 'toggle':
+    if payload == 'toggle':
         if led_on:
+            print("turning off LED")
             GPIO.output(led_gpio_pin, GPIO.LOW)
         else:
+            print("turning on LED")
             GPIO.output(led_gpio_pin, GPIO.HIGH)
         led_on = not led_on
 
@@ -140,7 +153,7 @@ def get_client():
     client.on_message = on_message
 
     # Connect to the Google MQTT bridge.
-    client.connect(mqtt_bridge_hostname, mqtt_bridge_port)
+    wait_for_connection(client)
 
     # This is the topic that the device will receive configuration updates on.
     mqtt_config_topic = "/devices/{}/config".format(device_id)
@@ -153,7 +166,7 @@ def get_client():
 
     # Subscribe to the commands topic, QoS 1 enables message acknowledgement.
     print("Subscribing to {}".format(mqtt_command_topic))
-    client.subscribe(mqtt_command_topic, qos=0)
+    client.subscribe(mqtt_command_topic, qos=1)
 
     return client
 
@@ -205,4 +218,11 @@ def listen_for_messages():
 
         time.sleep(1)
 
-listen_for_messages()
+while True:
+    try:
+        listen_for_messages()
+    except KeyboardInterrupt:
+        print("Quitting...")
+        break
+    except Exception as error:
+        print(error)
