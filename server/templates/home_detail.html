@@ -1,0 +1,118 @@
+{% extends "layouts/base.html" %} {% block title %} {{registry_info[1]}} {%
+endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %} {% block content %}
+<div class="pcoded-content">
+  <div class="pcoded-inner-content">
+    <!-- [ breadcrumb ] start -->
+    <div class="page-header">
+      <div class="page-block">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <div class="page-header-title">
+              <h5 class="m-b-10">{{registry_info[1]}}</h5>
+            </div>
+            <ul class="breadcrumb">
+              <li class="breadcrumb-item">
+                <a href="/dashboard"><i class="feather icon-home"></i></a>
+              </li>
+              <li class="breadcrumb-item"><a>Homes</a></li>
+              <li class="breadcrumb-item"><a>{{registry_info[1]}}</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [ breadcrumb ] end -->
+    <div class="main-body">
+      <div class="page-wrapper">
+        <!-- [ Main Content ] start -->
+        <div class="col">
+          <div class="card">
+            <div style="display: flex" class="card-header">
+              <h5>Home Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <form action="/api/update_registry" method="POST">
+                    <div class="form-group">
+                      <label for="name">Name</label>
+                      <input type="hidden" name="id" value="{{registry_info[0]}}">
+                      <input
+                        type="text"
+                        {% if not admin %} readonly {% endif %}
+                        class="form-control{% if not admin %}-plaintext{% endif %}"
+                        autocomplete="off"
+                        name="name"
+                        value="{{registry_info[1]}}"
+                      >
+                    </div>
+                      {% if admin %} <button type="submit" class="btn btn-primary"> Save </button> {% endif %}
+                    </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display: flex" class="card-header">
+              <h5>Home Details</h5>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <h5>Members</h5>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <tbody>
+                      {% for member in members %}
+                      <tr class="unread">
+                        <td style="display: flex; align-items: center">
+                          <div
+                            style="
+                              width: 40px;
+                              margin-right: 20px;
+                              text-align: center;
+                            "
+                            class="theme-bg text-white f-24 rounded-circle"
+                          >
+                            <span class="pcoded-micon"
+                              ><i class="feather icon-cpu"></i
+                            ></span>
+                          </div>
+                          <h6 style="margin: 0">{{member[0]}}</h6>
+                        </td>
+
+                        <td></td>
+                        <td style="align-items: center">
+                          <h6 class="text-muted" style="margin: 0">
+                            <i
+                              class="fas fa-circle text-c-green f-10 m-r-15"
+                            ></i
+                            >{% if member[1] %} Admin {% else %} Member {% endif
+                            %}
+                          </h6>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="addMember"
+                  placeholder="Password"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}{% endblock javascripts %}

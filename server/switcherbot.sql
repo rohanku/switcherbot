@@ -11,5 +11,12 @@ CREATE TABLE IF NOT EXISTS registries (
 
 CREATE TABLE IF NOT EXISTS devices (
   id text NOT NULL PRIMARY KEY,
-  registry_id integer
+  registry_id integer,
+  name text
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id text NOT NULL PRIMARY KEY,
+  email text,
+  name text
 );
