@@ -65,7 +65,7 @@ def requires_auth(f):
   def decorated(*args, **kwargs):
     if 'profile' not in session:
       # Redirect to Login page here
-      return redirect(url_for('login'))
+      return redirect(url_for('landing'))
     return f(*args, **kwargs)
 
   return decorated
@@ -75,6 +75,23 @@ def requires_auth(f):
 def create_registry():
     try:
         registry_id = db.execute(db.create_registry, session['profile']['user_id'], request.form['name'])
+    except RegistryExistsException:
+        flash("Registry already exists!")
+    except Exception as error:
+        flash("An unknown error occured! Please contact me at rohankumar@berkeley.edu to resolve the issue.")
+        print(error)
+    finally:
+        return redirect(url_for('dashboard'))
+
+@app.route('/api/delete_registry', methods=['POST'])
+@requires_auth
+def delete_registry():
+    try:
+        admin = db.execute(db.is_admin, session['profile']['user_id'], request.form['id'])
+        if not admin:
+            flash("You do not have permissions to add a update that registry!")
+            raise HandledException
+        registry_id = db.execute(db.delete_registry, session['profile']['user_id'], request.form['id'])
     except RegistryExistsException:
         flash("Registry already exists!")
     except Exception as error:
@@ -164,7 +181,7 @@ def callback():
     return redirect(url_for('dashboard'))
 
 @app.route('/')
-def home():
+def landing():
     if 'profile' in session:
         return redirect(url_for('dashboard'))
     return render_template('landing.html')
@@ -191,7 +208,7 @@ def logout():
     # Clear session stored data
     session.clear()
     # Redirect user to logout endpoint
-    params = {'returnTo': url_for('home', _external=True), 'client_id': Config.AUTH0_CLIENT_ID}
+    params = {'returnTo': url_for('landing', _external=True), 'client_id': Config.AUTH0_CLIENT_ID}
     return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
 
 if __name__ == "__main__":

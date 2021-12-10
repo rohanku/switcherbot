@@ -23,6 +23,12 @@ def create_registry(conn, user_id, registry_name):
         cur.execute('INSERT INTO permissions VALUES (%s, %s, True)', (user_id, registry_id))
         return registry_id
 
+def delete_registry(conn, user_id, registry_id):
+    with conn.cursor() as cur:
+        cur.execute('DELETE FROM permissions WHERE registry_id = %s', (registry_id,))
+        cur.execute('DELETE FROM registries WHERE id = %s', (registry_id,))
+        cur.execute('UPDATE devices SET registry_id = NULL WHERE registry_id = %s', (registry_id,))
+
 def get_registries(conn, user_id):
     with conn.cursor() as cur:
         cur.execute('SELECT registries.id, registries.name, permissions.admin FROM permissions INNER JOIN registries on permissions.registry_id = registries.id WHERE permissions.user_id = %s', (user_id,))
