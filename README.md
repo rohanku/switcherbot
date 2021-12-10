@@ -6,7 +6,7 @@ A device for mechanically flipping switches over the cloud.
 
 The device, designed using OnShape, is powered by a RaspberryPi running a Flask web app for provisioning and an MQTT tunnel to Google Cloud IoT for receiving config and PubSub messages. Parts were 3D printed with PLA.
 
-<img src="images/switcherbot.jpg" width="500"/>
+<img src="images/switcherbot.jpg"/>
 
 ### Features
 - Replaceable tips for different types of switches
@@ -15,6 +15,7 @@ The device, designed using OnShape, is powered by a RaspberryPi running a Flask 
 <p float="left">
   <img src="images/switcherbot_onshape.png" width="300" />
   <img src="images/switcherbot_detail.jpg" width="300" /> 
+  <img src="images/switcherbot_tips_onshape.png" width="300" />
   <img src="images/switcherbot_tips.jpg" width="300" />
 </p>
 
