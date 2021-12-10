@@ -1,0 +1,71 @@
+<nav class="pcoded-navbar">
+  <div class="navbar-wrapper">
+    <div class="navbar-brand header-logo">
+      <a
+        target="_blank"
+        href="https://appseed.us/admin-dashboards/flask-datta-able"
+        class="b-brand"
+      >
+        <div class="b-bg">
+          <i class="feather icon-power"></i>
+        </div>
+        <span class="b-title">Switcherbot</span>
+      </a>
+      <a class="mobile-menu" id="mobile-collapse" href="javascript:"
+        ><span></span
+      ></a>
+    </div>
+    <div class="navbar-content scroll-div">
+      <ul class="nav pcoded-inner-navbar">
+        <li class="nav-item pcoded-menu-caption">
+          <label>General</label>
+        </li>
+        <li class="nav-item {% if 'dashboard' in segment %} active {% endif %}">
+          <a href="/dashboard" class="nav-link"
+            ><span class="pcoded-micon"><i class="feather icon-grid"></i></span
+            ><span class="pcoded-mtext">Dashboard</span></a
+          >
+        </li>
+        <li class="nav-item pcoded-menu-caption">
+          <label>Homes</label>
+        </li>
+        {% for entry in registries %}
+        <li class="nav-item {% if 'ui-forms' in segment %} active {% endif %}">
+          <a href="/homes/{{entry[0]}}" class="nav-link"
+            ><span class="pcoded-micon"><i class="feather icon-home"></i></span
+            ><span class="pcoded-mtext" style="padding-right: 20px"
+              >{{entry[1]}}</span
+            ></a
+          >
+        </li>
+        {% endfor %}
+        <li class="nav-item pcoded-menu-caption">
+          <label>Devices</label>
+        </li>
+        {% for device_list in devices.values() %} {% for device in device_list
+        %}
+        <li class="nav-item {% if 'ui-forms' in segment %} active {% endif %}">
+          <a href="#" class="nav-link"
+            ><span class="pcoded-micon"><i class="feather icon-cpu"></i></span
+            ><span class="pcoded-mtext" style="padding-right: 20px"
+              >{{device[0]}}</span
+            ></a
+          >
+        </li>
+        {% endfor %} {% endfor %}
+        <li class="nav-item pcoded-menu-caption">
+          <label>User</label>
+        </li>
+        <li class="nav-item {% if 'ui-forms' in segment %} active {% endif %}">
+          <a href="logout" class="nav-link"
+            ><span class="pcoded-micon"
+              ><i class="feather icon-log-out"></i></span
+            ><span class="pcoded-mtext" style="padding-right: 20px"
+              >Logout</span
+            ></a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

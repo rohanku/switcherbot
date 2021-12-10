@@ -14,11 +14,11 @@ registry_id = 'registry'
 
 client = iot_v1.DeviceManagerClient()
 
-def toggle_device(device_id):
+def device_command(device_id, command):
     device_path = client.device_path(project_id, cloud_region, registry_id, device_id)
 
     # command = 'Hello IoT Core!'
-    data = 'toggle'.encode("utf-8")
+    data = command.encode("utf-8")
 
     return client.send_command_to_device(
 	request={"name": device_path, "binary_data": data}

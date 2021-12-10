@@ -16,10 +16,6 @@ try:
         GPIO.output(12, GPIO.HIGH)
         time.sleep(t)
         GPIO.output(12, GPIO.LOW)
-        time.sleep(1/50-t)
-        GPIO.output(12, GPIO.HIGH)
-        time.sleep(t)
-        GPIO.output(12, GPIO.LOW)
 except KeyboardInterrupt:
     print("exiting")
     GPIO.cleanup()
