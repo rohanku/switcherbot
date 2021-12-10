@@ -29,13 +29,13 @@ The device, designed using OnShape, is powered by a RaspberryPi running a Flask 
 
 The web app for controlling and monitoring devices was created using Flask, PostgreSQL, Auth0, and Google Cloud IoT.
 
-<img src="images/switcherbot_website.png" width="500"/>
+<img src="images/switcherbot_website.png"/>
 
 ### Features
 - "Homes" allow for users to share devices and manage permissions between several accounts
 - Devices can be configured, monitored, and controlled from anywhere through the Switcherbot dashboard
 
-<img src="images/switcherbot_dashboard.png" width="500"/>
+<img src="images/switcherbot_dashboard.png"/>
 
 
 ### Technical Details
